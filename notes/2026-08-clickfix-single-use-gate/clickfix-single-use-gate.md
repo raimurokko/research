@@ -323,12 +323,26 @@ Glück. Darauf zu planen, dass die Infrastruktur die Reaktion überlebt, ist ein
   Zusammentreffen.
 - Zwei nicht standardisierte Request-Header tragen Kampagnen- und Build-Kennungen.
 
-Beim letzten Punkt griff der erste Entwurf der technischen Analyse zu weit, und es lohnt
-festzuhalten, warum: Er führte die beobachteten Header-*Werte* als Indikatoren, mit der
-Begründung, sie kämen vom Builder und überlebten deshalb eine Domain-Rotation. Diese
-Begründung ist plausibel und vollständig unbelegt — es gibt eine Beobachtung. Veröffentlicht
-sind jetzt die Header-*Namen*; die Werte stehen in der Analyse, wo man sieht, dass sie
-genau einmal vorkamen.
+Aus diesem letzten Punkt folgten zwei Lehren, beide unangenehm.
+
+Der erste Entwurf der technischen Analyse führte die beobachteten Header-*Werte* als
+Indikatoren, mit der Begründung, sie kämen vom Builder und überlebten deshalb eine
+Domain-Rotation. Plausibel und vollständig unbelegt — es gibt eine Beobachtung.
+Veröffentlicht sind jetzt die Header-*Namen*; die Werte stehen in der Analyse, wo man
+sieht, dass sie genau einmal vorkamen.
+
+Die zweite zeigte sich erst bei der Duplikatsuche in SigmaHQ, vor der geplanten Einreichung
+eigener Regeln: **Das Header-Paar war bereits dokumentiert.** Eine SigmaHQ-Regel vom
+November 2025 matcht `curl`-POSTs mit `user:` und `BuildID`, abgelegt unter Atomic macOS
+Stealer und gestützt auf eine Untersuchung von Trend Micro. Wir hatten sie unabhängig
+gefunden und als die dauerhaftesten Indikatoren der Kette bezeichnet — die erste Hälfte
+stimmt, die Neuheit nicht.
+
+Der Trost wiegt schwerer als die Korrektur: Ein unabhängiges Team sah dieselben zwei vom
+Builder erzeugten Header in einer Auslieferung, die es AMOS zuordnet. Das ist jetzt die
+stärkste Stütze der Familienzuordnung — und sie kam aus einer Erkennungsregel, nicht aus
+einem Threat-Report. Ein Argument dafür, fremde Regeln zu lesen und nicht nur fremde
+Prosa.
 
 ### Angepasste Handlungsempfehlung
 

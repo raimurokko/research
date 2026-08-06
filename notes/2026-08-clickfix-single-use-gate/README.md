@@ -301,12 +301,26 @@ will outlive the response is a mistake.
   compromise, and it existed nowhere in the artefacts captured from the first encounter.
 - Two non-standard request headers carry campaign and build identifiers.
 
-On that last point the first draft of the technical analysis overreached, and it is worth
-recording why: it listed the observed header *values* as indicators, on the reasoning that
-they come from the builder and would therefore survive domain rotation. That reasoning is
-plausible and completely unevidenced — there is one observation. The published indicators
-name the headers; the values stay in the analysis, where a reader can see they were seen
-once.
+That last point came with two lessons, both uncomfortable.
+
+The first draft of the technical analysis listed the observed header *values* as
+indicators, reasoning that they come from the builder and would therefore survive domain
+rotation. Plausible, and completely unevidenced — there is one observation. The published
+indicators name the headers; the values stay in the analysis, where a reader can see they
+were seen once.
+
+The second only surfaced while checking SigmaHQ for duplicates before contributing rules
+upstream: **the header pair was already documented.** A SigmaHQ rule published in November
+2025 matches `curl` POSTs carrying `user:` together with `BuildID`, filed under Atomic
+macOS Stealer and built on a Trend Micro investigation. We found them independently and
+called them the most durable indicators in the chain — the first half holds, the novelty
+did not.
+
+The consolation is larger than the correction: an independent team saw the same two
+builder-emitted headers in delivery they attribute to AMOS. That is now the strongest
+corroboration for the family assessment, and it came from a detection rule rather than a
+threat report — which is an argument for reading other people's rules, not just their
+prose.
 
 ### Revised guidance
 
