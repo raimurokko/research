@@ -67,7 +67,7 @@ The decisive finding sat directly in the served HTML:
 
 Notable details:
 
-- An **injection marker** (`level` / `trigger` / `domain` / `ts`) carrying a same-day Unix timestamp in milliseconds → the tag is inserted dynamically, per request.
+- An **injection marker** (`level` / `trigger` / `domain` / `ts`) carrying a same-day Unix timestamp in milliseconds → the tag is inserted server-side, not written into the DOM by client-side code. (The original reading of this marker — that the tag is rendered *per request* — did not survive the evidence review; see the correction in section 10.)
 - An **obfuscated inline decoder** in the adjacent tag, reconstructing strings from an index array at runtime.
 - The attributes `nowprocket` and `data-cfasync="false"` — deliberately set to prevent WP-Rocket and Cloudflare Rocket Loader from touching the script.
 
@@ -77,7 +77,7 @@ At this point the working hypothesis was: **server-side compromise** in the styl
 
 ## 3. Ruling out local causes
 
-Since the script appeared in the HTML *as received from the server* (not written into the DOM client-side), and browser extensions cannot rewrite response bodies, three hypotheses remained: a local MITM proxy with its own root CA, a server-side compromise, or a cache artefact. The fresh timestamp immediately eliminated the last option.
+Since the script appeared in the HTML *as received from the server* (not written into the DOM client-side), and browser extensions cannot rewrite response bodies, three hypotheses remained: a local MITM proxy with its own root CA, a server-side compromise, or a cache artefact. The timestamp in the marker was read as "fresh" and taken to eliminate the cache option — **that step was wrong**, and it is corrected in section 10. What actually ruled out a local cache was the independent reproduction from urlscan's infrastructure in section 4.
 
 The local environment was checked systematically — every result came back clean:
 
@@ -127,7 +127,7 @@ With that, every piece of the puzzle rearranged itself — into an entirely diff
 
 | Indicator | Compromise hypothesis (wrong) | Ad-Shield hypothesis (correct) |
 |---|---|---|
-| Server-side injection, fresh timestamp | Attacker in the supply chain | Deliberate publisher integration, rendered per request |
+| Server-side injection, timestamped marker | Attacker in the supply chain | Deliberate publisher integration, rendered server-side |
 | Marker `level/trigger/domain` | Attacker signature | Ad-Shield configuration |
 | Obfuscated decoder | Malware camouflage | Anti-adblock obfuscation |
 | `nowprocket` / `data-cfasync` | Evasion of protection mechanisms | Protecting the paid script from the publisher's own optimisers |
@@ -138,7 +138,7 @@ With that, every piece of the puzzle rearranged itself — into an entirely diff
 
 ## 6. Who is Ad-Shield?
 
-Ad-Shield operates as a commercial "adblock recovery" vendor: publishers embed a script that — through considerable technical effort involving obfuscation, rotating domains, and filter-rule evasion — delivers ads even with an active ad blocker. The filter-list community has documented the associated infrastructure for years and describes an ongoing arms race with list maintainers [3]. The urlscan data itself speaks to the scale of deployment: `html-load.com` carries a Cisco Umbrella rank of roughly 7,400 — placing it among the 10,000 most-requested domains worldwide, indicating deployment across a large number of publishers. The redirect target `stg.html-load.com`, by contrast, is only about three months old, and the served `vendor.js` carried a `Last-Modified` timestamp from the same evening — both the infrastructure and the payload are under active development [1]. On welt.de, the marker `data-sdk="wp-l/1.1.6"` together with the per-request injection comment points to a server-side integration variant designed to give client-side blockers as little attack surface as possible.
+Ad-Shield operates as a commercial "adblock recovery" vendor: publishers embed a script that — through considerable technical effort involving obfuscation, rotating domains, and filter-rule evasion — delivers ads even with an active ad blocker. The filter-list community has documented the associated infrastructure for years and describes an ongoing arms race with list maintainers [3]. The urlscan data itself speaks to the scale of deployment: `html-load.com` carries a Cisco Umbrella rank of roughly 7,400 — placing it among the 10,000 most-requested domains worldwide, indicating deployment across a large number of publishers. The redirect target `stg.html-load.com`, by contrast, is only about three months old, and the served `vendor.js` carried a `Last-Modified` timestamp from the same evening — both the infrastructure and the payload are under active development [1]. On welt.de, the marker `data-sdk="wp-l/1.1.6"` together with the server-side injection comment points to an integration variant designed to give client-side blockers as little attack surface as possible.
 
 The business logic is understandable: publishers lose substantial ad revenue to blockers, and "adblock recovery" promises to reclaim that reach. The **method**, however — obfuscated code, fabricated error messages, deliberately blaming the user's own protection software — leaves fair ground behind. And it has a forensic side effect: the `<script>` tag a publisher embeds is technically almost indistinguishable from a genuine compromise. That is precisely what makes attribution hard — and reputation research indispensable.
 
@@ -146,13 +146,35 @@ The business logic is understandable: publishers lose substantial ad revenue to 
 
 ## 7. Indicators (IOCs)
 
-**Domains**
+The full list, with the confirmation status of each entry, is in
+[`evidence/iocs.txt`](evidence/iocs.txt).
+
+**Domains — directly observed**
 ```
-html-load.com
+html-load.com            fb.html-load.com
+content-loader.com       fb.content-loader.com
+fuel.norexceptdrug.com
 stg.html-load.com
-error-report.com / report.error-report.com
-html-load.cc, css-load.com, js-load.com,
-content-load.com, content-loader.com   (related Ad-Shield infrastructure)
+error-report.com         report.error-report.com
+```
+
+`fuel.norexceptdrug.com` is worth singling out: a nonsense-word host with
+exactly one urlscan submission ever (2026-08-05), serving the same two files
+as `html-load.com` — freshly rotated infrastructure.
+
+**Domains — inherited from filter lists, NOT confirmed here**
+```
+html-load.cc, css-load.com, info.error-report.com
+content-load.com   — no urlscan scans; on ALL-INKL shared hosting rather than
+                     Cloudflare like every confirmed host. Likely a false
+                     positive; blocking it risks an uninvolved customer.
+js-load.com        — no DNS delegation at all. Not verifiable.
+```
+
+**Serving pattern** (more durable than any single domain)
+```
+<host>/vendor.js  and  <host>/main.js
+fb.<host>/app.js
 ```
 
 **Injected markup**
@@ -174,10 +196,17 @@ dbfc43dea28cc36ee79e547f7dda5731fb4236e58d88b79dcc50bbf4cc8cb408
 (served via Cloudflare, Cache-Control: private, Last-Modified 2026-08-05 20:00 UTC)
 ```
 
-**Scareware modal**
+**Two distinct endpoints**
 ```
+# shown to the user
 report.error-report.com/modal?url=<b64>&error=<b64>&domain=html-load.com
+
+# silent callback, seen in the DevTools console
+error-report.com/report?type=loader_light&url=<b64>&error=<b64>&request_id=<b64>
 ```
+The apex host and the `request_id` distinguish the second one. Its value
+`loader_light` matches the `level: light` field in the injected marker — the
+integration tier is reported back.
 
 ---
 
@@ -203,11 +232,25 @@ The most instructive part of this case is the detour. The order of the investiga
 4. Externally verified → hypothesis seemingly confirmed
 5. **Domain reputation checked → hypothesis refuted**
 
-Step 5 should have been step 2. Every single technical indicator — server-side injection, obfuscation, protection-evasion attributes, fresh timestamp — was compatible with **both** explanations. What separated the two hypotheses was not the code but the **reputation of the involved domains** — information retrievable in thirty seconds.
+Step 5 should have been step 2. Every single technical indicator — server-side injection, obfuscation, protection-evasion attributes, the timestamped marker — was compatible with **both** explanations. What separated the two hypotheses was not the code but the **reputation of the involved domains** — information retrievable in thirty seconds.
 
 **Rule of thumb:** before suspicious third-party code is classified as a compromise, the reputation of every involved domain deserves a check. A one-line `<script src>` from a commercial adtech firm looks, in the page source, exactly like an injection by an attacker. The difference lies not in the technique but in the sender.
 
 The good news on the side: all of the local forensics retains its value. The examined machine was clean at every point — and the only reason it ever looked suspicious was a DNS filter doing exactly its job.
+
+---
+
+## 10. Correction (2026-08-06)
+
+Reviewing the captured evidence for publication turned up an error in this note's own reasoning. It is left visible rather than quietly edited out, because it is the same failure mode section 9 is about.
+
+**The claim.** Sections 2.2 and 3 read the `ts` field in the injection marker as a *fresh, per-request* timestamp, and section 3 used that freshness to rule out a cache artefact.
+
+**The evidence.** Two captures of the served source exist: Firefox at 21:53 UTC (`ts: 1785961800120`, script id `FhEukiprShLX`) and Chrome at 22:46 UTC (`ts: 1785961800150`, script id `PjDNysNXd`). Fifty-three minutes apart, both carry the same second — 2026-08-05 20:30:00 UTC — differing only by 30 ms.
+
+**The correction.** `ts` marks when the response was **generated or cached**, not when it was requested. It therefore cannot rule out a cache artefact; it is in fact consistent with one. The script `id` *does* differ between the two responses, so the tag is generated in variants — but the timestamp does not track the request.
+
+**What this changes.** Nothing in the conclusion. The injection is Ad-Shield's, and that rests on domain reputation (section 5) and on independent reproduction from urlscan's infrastructure (section 4) — not on the timestamp. What it changes is the honesty of the chain: one supporting step was an over-reading of a field whose meaning had not been established. Which is, precisely, the lesson of section 9 — applied this time to the author.
 
 ---
 
