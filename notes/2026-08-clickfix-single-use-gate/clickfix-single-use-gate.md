@@ -181,12 +181,29 @@ Arbeit.
   kein Eigentum. Die Edge-Kennungen in Serverantworten bezeichnen den nächstgelegenen
   Standort des *Abrufenden*, nicht den des Ziels.
 
-  Das gilt uneingeschränkt auch für die Hosting-Daten in Abschnitt 6. Beide Gate-Domains
-  lösen auf Origin-IPs in einem einzigen autonomen System auf, und dieses System trägt
-  eine Registrierung auf den Seychellen, seine Netzblöcke eine türkische. Das sind
-  Registereinträge. Sie verorten keinen Server und sagen nichts darüber, wer die Kampagne
-  betreibt. Der Wert des Fundes liegt darin, dass ein benennbarer Provider existiert, dem
-  man Rechtshilfe zustellen kann — nicht darin, dass sich eine Flagge anheften ließe.
+  Das gilt uneingeschränkt auch für die Hosting-Daten in Abschnitt 6. Der Wert jenes Fundes
+  liegt darin, dass ein benennbarer Provider existiert, dem man Rechtshilfe zustellen kann
+  — nicht darin, dass sich eine Flagge anheften ließe.
+
+  Wie wenig die Flaggen taugen, zeigt sich am besten, wenn man sie einfach sammelt. Für
+  dieselben zwei Origin-IPs nennen vier Quellen vier verschiedene Länder:
+
+  | Quelle | Land |
+  |---|---|
+  | Registrierung von `AS202412` | **SC** — Seychellen |
+  | RIPE-Maintainer der Netzblöcke (`lir-tr-mgn-1-MNT`) | **TR** — Türkei |
+  | `country:`-Feld im RIPE-`inetnum`-Objekt | **DE** — Deutschland |
+  | Anmerkung bei AlienVault OTX | **GB** — Vereinigtes Königreich |
+
+  Keine davon ist gelogen. Das AS ist auf den Seychellen registriert, der Adressraum wird
+  über einen türkischen LIR verwaltet, der Inhaber gibt eine deutsche Anschrift an, und OTX
+  liest eine veraltete Datenbank aus der Zeit, als `158.94.0.0/16` britischer
+  Wissenschaftsadressraum war. Jeder Wert ist eine Tatsache über Papiere, und keine zwei
+  stimmen überein — genau deshalb kann keiner die Last von „die Täter sitzen in X" tragen.
+
+  **Stabil** ist über alle Quellen hinweg, einschließlich der Live-BGP-Daten von RIPEstat,
+  nur eines: Beide Präfixe werden von `AS202412` angekündigt, gehalten von Omegatech Ltd.
+  Das ist der Teil, an dem eine Ermittlung ansetzen kann — und der einzige ohne Länderkennung.
 - **Das Ausmaß.** Wie viele Menschen das Overlay gesehen und wie viele ihm gefolgt sind,
   beantworten allein die Serverprotokolle der betroffenen Seite. Die liegen beim Betreiber.
 

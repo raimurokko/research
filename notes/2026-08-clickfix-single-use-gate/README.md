@@ -168,12 +168,29 @@ creates a delisting problem for people who did nothing wrong. The distinction be
   ownership. The edge-node identifiers in server responses describe the *requester's*
   nearest point of presence, not the target's.
 
-  This applies with full force to the hosting data in section 6. Both gate domains resolve
-  to origin IPs in a single autonomous system, and that system carries a Seychelles
-  registration while its netblocks carry a Turkish one. Those are registry entries. They
-  do not place a server anywhere, and they say nothing at all about who runs the campaign.
-  The value of the finding is that a named provider exists to serve legal process on — not
-  that a flag can be attached to it.
+  This applies with full force to the hosting data in section 6. The value of that finding
+  is that a named provider exists to serve legal process on — not that a flag can be
+  attached to it.
+
+  How little the flags are worth is best shown by simply collecting them. For the same two
+  origin IPs, four sources give four different countries:
+
+  | Source | Country |
+  |---|---|
+  | Registration of `AS202412` | **SC** — Seychelles |
+  | RIPE maintainer of the netblocks (`lir-tr-mgn-1-MNT`) | **TR** — Turkey |
+  | `country:` field in the RIPE `inetnum` object | **DE** — Germany |
+  | AlienVault OTX annotation | **GB** — United Kingdom |
+
+  None of them is a lie. The AS is registered in the Seychelles, the address space is
+  administered through a Turkish LIR, the registrant states a German address, and OTX is
+  reading a stale database from when `158.94.0.0/16` was UK academic space. Every value is
+  a fact about paperwork, and no two of them agree — which is exactly why none of them can
+  carry the weight of "the attackers are in X".
+
+  What *is* stable across every source, including live BGP data from RIPEstat: both
+  prefixes are announced by `AS202412`, held by Omegatech Ltd. That is the part an
+  investigator can act on, and it is the only part with no country attached to it.
 - **Scale.** How many people saw the overlay, and how many followed it, is answerable only
   from the affected site's server logs. Those sit with the site operator.
 
