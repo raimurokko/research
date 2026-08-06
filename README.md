@@ -8,7 +8,10 @@ Notes are published in English where relevant to an international audience; Germ
 
 | Date | Title | Languages |
 |---|---|---|
+| 2026-08 | [One Shot: a ClickFix Chain That Cannot Be Analysed Twice](notes/2026-08-clickfix-single-use-gate/) — a single-use gate makes a macOS ClickFix payload unretrievable after first contact, and what that does to the order of an investigation | [EN](notes/2026-08-clickfix-single-use-gate/README.md) · [DE](notes/2026-08-clickfix-single-use-gate/clickfix-single-use-gate.md) |
 | 2026-08 | [When the Malware Is Legal: Ad-Shield on welt.de](notes/2026-08-ad-shield-welt-de/) — server-side anti-adblock injection on a top German publisher, and why domain reputation should precede code analysis | [EN](notes/2026-08-ad-shield-welt-de/README.md) · [DE](notes/2026-08-ad-shield-welt-de/ad-shield-welt-de.md) |
+
+The two 2026-08 notes are a matched pair: near-identical surface evidence — an obfuscated script injected into served HTML — with opposite conclusions. Read together they make the case that page source alone cannot separate a compromise from a paid integration.
 
 ## Scope & responsible use
 
