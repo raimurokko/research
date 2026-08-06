@@ -93,7 +93,7 @@ Die lokale Umgebung wurde systematisch geprüft — alle Befunde sauber:
 | `dig www.welt.de` (lokal & `@1.1.1.1`) | Korrekt auf Akamai (`edgekey.net`) |
 | LaunchAgents / LaunchDaemons | Nur Microsoft, Docker, Google Keystone, Steam |
 
-Zusätzlich: **Der Effekt trat in Safari und Chrome gleichermaßen auf.** Damit fielen sowohl die Extension- als auch die Proxy-Hypothese praktisch aus.
+Zusätzlich: **Der Effekt trat in Safari, Chrome und Firefox gleichermaßen auf** — drei unabhängige Engines (WebKit, Blink, Gecko), nicht bloß drei Programme. Damit fielen sowohl die Extension- als auch die Proxy-Hypothese praktisch aus: Keine Extension ist in allen dreien installiert, und ein lokaler Proxy hätte Zertifikate für drei getrennte Trust Stores fälschen müssen. Belege liegen für Chrome und Firefox vor (`evidence/`); die Safari-Beobachtung wurde nicht per Screenshot festgehalten.
 
 ---
 

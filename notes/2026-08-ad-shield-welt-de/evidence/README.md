@@ -24,6 +24,9 @@ Material behind [the note](../README.md). All observations are from
 | `06_devtools-network-capture_chrome_2026-08-05T2246Z.png` | The DevTools Network session the HAR was taken from |
 | `served-source_www.welt.de_2026-08-05T2246Z.html` | Chrome's rendered `view-source:` page for the Chrome capture. The served HTML is HTML-escaped and wrapped in highlighting markup — strip tags and unescape before grepping. |
 
+The effect was observed in Safari, Chrome and Firefox. These captures cover
+Chrome and Firefox; the Safari observation was not screenshotted.
+
 Screenshots are cropped to the browser window. Nothing inside the window was
 altered; the desktop, window switcher, sidebar and dock were removed because
 they show unrelated personal content. Unedited originals are held offline.

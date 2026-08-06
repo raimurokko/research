@@ -93,7 +93,7 @@ The local environment was checked systematically — every result came back clea
 | `dig www.welt.de` (local & `@1.1.1.1`) | Correctly resolving to Akamai (`edgekey.net`) |
 | LaunchAgents / LaunchDaemons | Only Microsoft, Docker, Google Keystone, Steam |
 
-Additionally: **the effect occurred identically in both Safari and Chrome.** That effectively eliminated both the extension and the proxy hypotheses.
+Additionally: **the effect occurred identically in Safari, Chrome and Firefox** — three independent engines (WebKit, Blink, Gecko), not merely three applications. That effectively eliminated both the extension and the proxy hypotheses: no extension is installed across all three, and a local proxy would have had to forge certificates for three separate trust stores. Captures exist for Chrome and Firefox (`evidence/`); the Safari observation was not screenshotted.
 
 ---
 
