@@ -1,6 +1,6 @@
 # Novum Analytica — Research Notes
 
-Field notes from security research at [Novum Analytica GmbH](https://novum-analytica.example) — incident forensics, OSINT attribution, vulnerability research, and the occasional methodological lesson learned the hard way.
+Field notes from security research at [Novum Analytica GmbH](https://novumanalytica.com) — incident forensics, OSINT attribution, vulnerability research, and the occasional methodological lesson learned the hard way.
 
 Notes are published in English where relevant to an international audience; German originals are included where they exist. Each note ships with its indicators (IOCs) in machine-readable form under `evidence/`.
 
