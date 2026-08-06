@@ -12,11 +12,19 @@
 ## Attacker-controlled — confirmed in this case
 enter-pverif-code.info
 ferncurrent14.com
+grove-89.com
 
-## Suspected sibling gate — NOT confirmed
-# makeverizyjar.info    zero days old on 2026-08-04, same role and an
-#                       identical response length to enter-pverif-code.info.
-#                       Structural match only; no chain was observed using it.
+# grove-89.com  paste-conversion beacon, added 2026-08-06 from the recovered stage 2.
+#               A POST to /api/metrics/run?event=pasted fires the moment the victim
+#               pastes — before anything is downloaded. Earliest network signal in the
+#               chain, and it had no public scan history at all when found.
+
+## Sibling gate — corroborated, but no chain observed using it
+# makeverizyjar.info    zero days old on 2026-08-04, same role and an identical
+#                       response length to enter-pverif-code.info, and its origin
+#                       sits in the same AS202412 (see below). Left commented out
+#                       because no delivery chain was ever observed running through
+#                       it — shared hosting raises confidence, it does not confirm.
 
 ## Origin IPs — re-checked 2026-08-06, confirmed against two resolvers
 # Both gate domains use Cloudflare nameservers but DNS-only A records, so the
@@ -44,9 +52,17 @@ ferncurrent14.com
 # stage 1  hxxp://enter-pverif-code[.]info/p/<per-victim-token>     plain HTTP
 #          returns "ok" exactly once per token, then nothing
 # stage 2  hxxps://ferncurrent14[.]com/curl/<campaign-token>        piped to zsh
+# stage 2  POST hxxps://grove-89[.]com/api/metrics/run?event=pasted  telemetry beacon
+#          non-standard headers: "user" and "BuildID" (detect on the NAMES; the values
+#          were observed exactly once and are not listed as indicators)
+# stage 3  hxxps://ferncurrent14[.]com/<id>/DANTE/update -> /tmp/helper
+#          xattr -c ; chmod +x ; run. Universal Mach-O, self-decrypting loader.
+#          MD5 ab477021780e553be4271cb34bb8394b
 #
 # The stage-1 path component is session-scoped and has no reuse value.
-# The stage-2 path hash appears campaign-scoped and is the more durable one.
+# The stage-2 path hash was called campaign-scoped in the first writeup. That rests on
+# a single observation and should not be relied on: the stage-3 URL recovered two days
+# later used a different path shape entirely.
 
 ## Behavioural markers — more durable than the domains
 # eval "$(printf '%s' '<b64>'|base64 -d)"     outer layer
@@ -61,9 +77,12 @@ ferncurrent14.com
 # Host is a compromised legitimate site — the PATH is the indicator, not the domain.
 # The macOS lure rule does not fire on this variant, by design.
 
-## Reference sample
+## Reference samples
 # Clipboard payload, 477 bytes, no trailing newline.
 # MD5    2169ff5e7be77fc3ff72758f9fa50658
+# Stage-3 Mach-O, 297,968 bytes, universal (x86_64 + arm64), ad-hoc signed, no team ID.
+# MD5    ab477021780e553be4271cb34bb8394b
+# SHA256 29be0f56275f051181ea3ec37ddc3d3807cde34cb65de855709fae0e13786a40
 # Registered as yarahub_reference_md5 for two published YARA rules.
 # The file itself, the rules, and the full 29-domain cluster analysis:
 # https://github.com/raimurokko/macos-threat-tracking
