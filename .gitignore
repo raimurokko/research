@@ -1,1 +1,8 @@
 .DS_Store
+
+# Vollstaendige HAR-Mitschnitte: gross, und der Beweiswert steckt in
+# requests-adshield.csv. Siehe evidence/README.md.
+*.har
+
+# Chrome-"Webseite, komplett"-Speicherungen
+*_-Dateien/

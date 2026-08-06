@@ -1,33 +1,74 @@
-# Ad-Shield anti-adblock infrastructure — observed on www.welt.de, 2026-08-05
+# Ad-Shield anti-adblock infrastructure — observed on www.welt.de, 2026-08-05/06
+#
 # Note: not malware in the compromise sense; deliberate publisher-side
 # "adblock recovery" integration. Classified as adware by multiple sources.
 # License: CC0 — free for use in blocklists and detection tooling.
+#
+# Parsing: every uncommented line is a bare domain. `grep -v '^#'` yields a
+# clean domain list. Unverified entries are commented out on purpose so they
+# are not picked up by naive parsers — see the section at the end.
 
-## Domains (observed)
+## Directly observed in this capture (requests-adshield.csv)
 html-load.com
+fb.html-load.com
+content-loader.com
+fb.content-loader.com
+fuel.norexceptdrug.com
+
+## Observed in the redirect chain and the scareware modal
 stg.html-load.com
 error-report.com
 report.error-report.com
 
-## Domains (related Ad-Shield infrastructure, per filter-list OSINT)
-html-load.cc
-css-load.com
-js-load.com
-content-load.com
-content-loader.com
-info.error-report.com
+## Serving pattern — more durable than any single domain
+# Each primary host serves the same two files:
+#     /vendor.js   and   /main.js
+# Each has a matching "fb." subdomain serving:
+#     /app.js
+# The domains are interchangeable and rotate. fuel.norexceptdrug.com is a
+# nonsense-word host with exactly one urlscan submission ever (2026-08-05) and
+# the same file layout as html-load.com — i.e. freshly rotated infrastructure.
+# Matching on the pattern catches successors that a domain list will miss.
 
-## URL pattern (scareware modal)
-# report.error-report.com/modal?url=<b64>&error=<b64>&domain=html-load.com
+## URL patterns — two distinct endpoints
+# 1) Scareware modal shown to the user:
+#    report.error-report.com/modal?url=<b64>&error=<b64>&domain=html-load.com
+#
+# 2) Silent telemetry callback, seen in the DevTools console
+#    (screenshot 03) — different host (apex, not report.) and different
+#    parameters, notably a request_id:
+#    error-report.com/report?type=loader_light&url=<b64>&error=<b64>&request_id=<b64>
+#    The value "loader_light" matches the "level: light" field in the
+#    injected marker below — the integration tier is reported back.
 
 ## Injected markup pattern
 # <!-- level: <x> trigger: <y> domain: <host> ts: <unix-ms> -->
 # <script async id="<random>" data-sdk="wp-l/1.1.6" data-cfasync="false"
 #         nowprocket src="https://html-load.com/vendor.js" ...>
 
-## Payload hash (vendor.js as of 2026-08-05 21:54 UTC; rebuilt continuously)
-# SHA-256:
-dbfc43dea28cc36ee79e547f7dda5731fb4236e58d88b79dcc50bbf4cc8cb408
+## Observed sample — NOT an indicator
+# vendor.js is rebuilt continuously; the hash below documents one moment
+# (2026-08-05 21:54 UTC, Last-Modified 20:00 UTC) and has no detection value.
+# Deliberately commented out so it cannot end up in a domain blocklist.
+# SHA-256: dbfc43dea28cc36ee79e547f7dda5731fb4236e58d88b79dcc50bbf4cc8cb408
+
+## Unverified — inherited from third-party filter lists, NOT confirmed here
+# Listed for completeness. Each was checked on 2026-08-06 and none could be
+# tied to Ad-Shield from our own data. Commented out so they do not reach
+# blocklists on our authority.
+#
+#   css-load.com          resolves (Cloudflare); 8 urlscan scans; subdomain
+#                         8.fb.css-load.com fits the fb. pattern, but the
+#                         domain did not appear in this capture
+#   html-load.cc          resolves (Cloudflare); not seen in this capture
+#   info.error-report.com resolves; not seen in this capture
+#   content-load.com      NO urlscan scans; resolves to ALL-INKL shared
+#                         hosting (dd44230.kasserver.com), unlike every
+#                         confirmed host, which sits behind Cloudflare.
+#                         Likely a false positive — blocking it risks an
+#                         uninvolved shared-hosting customer.
+#   js-load.com           no DNS delegation at all (no NS/SOA/A/MX/TXT),
+#                         no urlscan scans. Not verifiable.
 
 ## Reference scans
 # https://urlscan.io/result/019fd3eb-fb80-73d9-8cc2-bd1d7fcaeaca/
