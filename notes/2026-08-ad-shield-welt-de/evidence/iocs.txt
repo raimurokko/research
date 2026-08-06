@@ -1,0 +1,34 @@
+# Ad-Shield anti-adblock infrastructure — observed on www.welt.de, 2026-08-05
+# Note: not malware in the compromise sense; deliberate publisher-side
+# "adblock recovery" integration. Classified as adware by multiple sources.
+# License: CC0 — free for use in blocklists and detection tooling.
+
+## Domains (observed)
+html-load.com
+stg.html-load.com
+error-report.com
+report.error-report.com
+
+## Domains (related Ad-Shield infrastructure, per filter-list OSINT)
+html-load.cc
+css-load.com
+js-load.com
+content-load.com
+content-loader.com
+info.error-report.com
+
+## URL pattern (scareware modal)
+# report.error-report.com/modal?url=<b64>&error=<b64>&domain=html-load.com
+
+## Injected markup pattern
+# <!-- level: <x> trigger: <y> domain: <host> ts: <unix-ms> -->
+# <script async id="<random>" data-sdk="wp-l/1.1.6" data-cfasync="false"
+#         nowprocket src="https://html-load.com/vendor.js" ...>
+
+## Payload hash (vendor.js as of 2026-08-05 21:54 UTC; rebuilt continuously)
+# SHA-256:
+dbfc43dea28cc36ee79e547f7dda5731fb4236e58d88b79dcc50bbf4cc8cb408
+
+## Reference scans
+# https://urlscan.io/result/019fd3eb-fb80-73d9-8cc2-bd1d7fcaeaca/
+# https://urlscan.io/result/019fd3f7-4965-7628-bd2a-a03aa120ccf8/
