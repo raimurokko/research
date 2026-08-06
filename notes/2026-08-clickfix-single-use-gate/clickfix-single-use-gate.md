@@ -257,7 +257,9 @@ _7dcf / _xr                                 Wegwerf-Variablenpräfixe
 
 Erkennungsregeln, die dekodierte Kette, die vollständige Cluster-Auswertung zu allen 29
 Domains und das Werkzeug zur Sicherung liegen in einem eigenen Repository:
-**[macos-threat-tracking](https://github.com/raimurokko/macos-threat-tracking)**. Das dort
+**[macos-threat-tracking](https://github.com/raimurokko/macos-threat-tracking)**.
+The indicators are also published as an OTX pulse:
+<https://otx.alienvault.com/pulse/6a74f0919f32840a8acc6a6f>. Das dort
 abgelegte Zwischenablage-Sample trägt die MD5 `2169ff5e7be77fc3ff72758f9fa50658` — die
 Referenz-Prüfsumme zweier veröffentlichter YARA-Regeln. Die Regeln lassen sich damit gegen
 genau das Artefakt prüfen, aus dem sie entstanden sind.

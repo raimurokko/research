@@ -241,7 +241,9 @@ _7dcf / _xr                                 throwaway variable prefixes
 
 Detection rules, the decoded chain, the full 29-domain cluster analysis and the capture
 tooling live in a separate repository:
-**[macos-threat-tracking](https://github.com/raimurokko/macos-threat-tracking)**. The
+**[macos-threat-tracking](https://github.com/raimurokko/macos-threat-tracking)**.
+The indicators are also published as an OTX pulse:
+<https://otx.alienvault.com/pulse/6a74f0919f32840a8acc6a6f>. The
 clipboard sample there carries MD5 `2169ff5e7be77fc3ff72758f9fa50658`, which is the
 reference hash registered with two published YARA rules — so the rules can be verified
 against the artefact they were written from.
