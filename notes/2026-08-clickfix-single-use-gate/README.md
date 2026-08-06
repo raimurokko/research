@@ -124,7 +124,8 @@ The 29-domain batch separates cleanly by domain age, and the split matches the r
 - **Eight domains registered within six days** — the moving parts. Gating hosts, loader
   hosts, throwaway names. Two of them, `enter-pverif-code[.]info` (this case's gate) and
   `makeverizyjar[.]info`, were both zero days old and answered with responses of
-  *identical length*. Same role, same age, same size: a sibling gate, pending confirmation.
+  *identical length*. Same role, same age, same size — and, as section 6 shows, the same autonomous system.
+  That last point is what lifted it from guess to assessment.
 - **Twenty-one established sites**, ages roughly one to ten years, mostly WordPress. These
   are the delivery surface — other people's compromised websites.
 
@@ -146,9 +147,15 @@ creates a delisting problem for people who did nothing wrong. The distinction be
   do not make it.
 - **Attribution.** Nothing here identifies who is behind this. A domain's country code is
   not a location, a location is not a nationality, and rented infrastructure is not
-  ownership. No WHOIS lookups or geolocation were performed, and the edge-node identifiers
-  in server responses describe the *requester's* nearest point of presence, not the
-  target's.
+  ownership. The edge-node identifiers in server responses describe the *requester's*
+  nearest point of presence, not the target's.
+
+  This applies with full force to the hosting data in section 6. Both gate domains resolve
+  to origin IPs in a single autonomous system, and that system carries a Seychelles
+  registration while its netblocks carry a Turkish one. Those are registry entries. They
+  do not place a server anywhere, and they say nothing at all about who runs the campaign.
+  The value of the finding is that a named provider exists to serve legal process on — not
+  that a flag can be attached to it.
 - **Scale.** How many people saw the overlay, and how many followed it, is answerable only
   from the affected site's server logs. Those sit with the site operator.
 
@@ -160,9 +167,29 @@ Full, machine-readable, CC0: [`evidence/iocs.txt`](evidence/iocs.txt).
 
 ```
 enter-pverif-code.info      stage-1 gate / click telemetry (plain HTTP)
-makeverizyjar.info          suspected sibling gate, unconfirmed
+makeverizyjar.info          sibling gate, same hosting AS
 ferncurrent14.com           stage-2 loader host
 ```
+
+**The gates are not behind the proxy.** Re-checked on 2026-08-06 against two independent
+resolvers: both gate domains use Cloudflare nameservers but DNS-only `A` records, leaving
+their origins exposed. Only the stage-2 host is actually proxied.
+
+```
+178.16.52.101   enter-pverif-code.info   AS202412
+158.94.208.87   makeverizyjar.info       AS202412
+188.114.96.3    ferncurrent14.com        AS13335 (Cloudflare) — proxied
+```
+
+`AS202412` is *OMEGATECH-AS, Omegatech LTD*, an autonomous system registered 2026-01-12.
+
+That matters twice over. It lifts `makeverizyjar.info` above a coincidence of response
+length and registration age — it now shares hosting infrastructure with the confirmed
+gate, which is materially stronger, though an AS also hosts unrelated customers. And it
+leaves something an investigator can act on: an unproxied origin identifies a provider who
+can be served a subscriber-data request, which a Cloudflare-fronted domain does not.
+
+On what this is *not*, see section 5.
 
 **Behavioural markers** — more durable than the domains, which rotate within days:
 

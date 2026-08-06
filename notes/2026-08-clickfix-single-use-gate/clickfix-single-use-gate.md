@@ -132,8 +132,9 @@ Die 29 Domains trennen sich sauber nach Alter, und die Trennung deckt sich mit d
 - **Acht Domains, innerhalb von sechs Tagen registriert** — die beweglichen Teile.
   Gating-Hosts, Loader-Hosts, Wegwerfnamen. Zwei davon, `enter-pverif-code[.]info` (das
   Gate dieses Falls) und `makeverizyjar[.]info`, waren beide null Tage alt und antworteten
-  mit *identischer Antwortlänge*. Gleiche Rolle, gleiches Alter, gleiche Größe: ein
-  Schwester-Gate, vorbehaltlich Bestätigung.
+  mit *identischer Antwortlänge*. Gleiche Rolle, gleiches Alter, gleiche Größe — und, wie
+  Abschnitt 6 zeigt, dasselbe autonome System. Erst das hob es von der Vermutung zur
+  Einschätzung.
 - **21 etablierte Seiten**, etwa ein bis zehn Jahre alt, überwiegend WordPress. Sie sind
   die Auslieferungsfläche — die kompromittierten Websites anderer Leute.
 
@@ -156,9 +157,15 @@ Arbeit.
   zuzuordnen wäre ein Schluss aus der Form der Kette, kein Befund. Wir ziehen ihn nicht.
 - **Attribution.** Nichts hier sagt, wer dahintersteht. Eine Länderkennung ist kein
   Standort, ein Standort ist keine Staatsangehörigkeit, und gemietete Infrastruktur ist
-  kein Eigentum. Es wurden weder WHOIS-Abfragen noch Geolokalisierungen durchgeführt, und
-  die Edge-Kennungen in Serverantworten bezeichnen den nächstgelegenen Standort des
-  *Abrufenden*, nicht den des Ziels.
+  kein Eigentum. Die Edge-Kennungen in Serverantworten bezeichnen den nächstgelegenen
+  Standort des *Abrufenden*, nicht den des Ziels.
+
+  Das gilt uneingeschränkt auch für die Hosting-Daten in Abschnitt 6. Beide Gate-Domains
+  lösen auf Origin-IPs in einem einzigen autonomen System auf, und dieses System trägt
+  eine Registrierung auf den Seychellen, seine Netzblöcke eine türkische. Das sind
+  Registereinträge. Sie verorten keinen Server und sagen nichts darüber, wer die Kampagne
+  betreibt. Der Wert des Fundes liegt darin, dass ein benennbarer Provider existiert, dem
+  man Rechtshilfe zustellen kann — nicht darin, dass sich eine Flagge anheften ließe.
 - **Das Ausmaß.** Wie viele Menschen das Overlay gesehen und wie viele ihm gefolgt sind,
   beantworten allein die Serverprotokolle der betroffenen Seite. Die liegen beim Betreiber.
 
@@ -170,9 +177,32 @@ Vollständig und maschinenlesbar, CC0: [`evidence/iocs.txt`](evidence/iocs.txt).
 
 ```
 enter-pverif-code.info      Gate Stufe 1 / Klick-Telemetrie (einfaches HTTP)
-makeverizyjar.info          vermutetes Schwester-Gate, unbestätigt
+makeverizyjar.info          Schwester-Gate, gleiches Hosting-AS
 ferncurrent14.com           Loader-Host Stufe 2
 ```
+
+**Die Gates stehen nicht hinter dem Proxy.** Nachgeprüft am 06.08.2026 gegen zwei
+unabhängige Resolver: Beide Gate-Domains nutzen Cloudflare-Nameserver, ihre `A`-Records
+sind aber ungeproxied — die Origins liegen offen. Nur der Stufe-2-Host ist tatsächlich
+proxied.
+
+```
+178.16.52.101   enter-pverif-code.info   AS202412
+158.94.208.87   makeverizyjar.info       AS202412
+188.114.96.3    ferncurrent14.com        AS13335 (Cloudflare) — proxied
+```
+
+`AS202412` ist *OMEGATECH-AS, Omegatech LTD*, ein autonomes System, registriert am
+12.01.2026.
+
+Das zählt doppelt. Es hebt `makeverizyjar.info` über den Zufall gleicher Antwortlänge und
+gleichen Registrierungsalters hinaus — die Domain teilt sich jetzt die Hosting-Infrastruktur
+mit dem bestätigten Gate, was deutlich belastbarer ist, auch wenn ein AS ebenso
+Unbeteiligte beherbergt. Und es bleibt etwas übrig, woran eine Ermittlung ansetzen kann:
+Eine ungeproxiede Origin benennt einen Provider, dem sich eine Bestandsdatenauskunft
+zustellen lässt — was bei einer Cloudflare-fronted Domain nicht geht.
+
+Wozu das ausdrücklich *nicht* taugt, steht in Abschnitt 5.
 
 **Verhaltensmarker** — dauerhafter als die Domains, die im Tagesrhythmus rotieren:
 

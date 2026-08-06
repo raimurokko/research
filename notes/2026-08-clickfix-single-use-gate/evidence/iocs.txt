@@ -18,6 +18,28 @@ ferncurrent14.com
 #                       identical response length to enter-pverif-code.info.
 #                       Structural match only; no chain was observed using it.
 
+## Origin IPs — re-checked 2026-08-06, confirmed against two resolvers
+# Both gate domains use Cloudflare nameservers but DNS-only A records, so the
+# origins are exposed. The stage-2 host is proxied and gives nothing.
+178.16.52.101
+158.94.208.87
+#
+# 178.16.52.101   enter-pverif-code.info   AS202412
+# 158.94.208.87   makeverizyjar.info       AS202412
+# 188.114.96.3    ferncurrent14.com        AS13335 (Cloudflare) - proxied, not listed
+#
+# AS202412 = OMEGATECH-AS, Omegatech LTD. AS registered 2026-01-12.
+# Shared hosting infrastructure is what raises makeverizyjar.info above a
+# response-length coincidence. It is not proof: an AS also hosts unrelated
+# customers.
+#
+# NOT A LOCATION AND NOT AN ORIGIN CLAIM. The AS carries a Seychelles
+# registration and its netblocks a Turkish one. Both are registry entries.
+# Neither indicates where a server stands, and neither says anything about who
+# operates the campaign. Infrastructure is rented. What is usable here is the
+# provider — an unproxied origin IP is something legal process can act on,
+# which a Cloudflare-fronted domain is not.
+
 ## Chain
 # stage 1  hxxp://enter-pverif-code[.]info/p/<per-victim-token>     plain HTTP
 #          returns "ok" exactly once per token, then nothing
