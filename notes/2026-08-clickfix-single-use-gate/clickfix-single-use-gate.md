@@ -241,8 +241,37 @@ Das zählt doppelt. Es hebt `makeverizyjar.info` über den Zufall gleicher Antwo
 gleichen Registrierungsalters hinaus — die Domain teilt sich jetzt die Hosting-Infrastruktur
 mit dem bestätigten Gate, was deutlich belastbarer ist, auch wenn ein AS ebenso
 Unbeteiligte beherbergt. Und es bleibt etwas übrig, woran eine Ermittlung ansetzen kann:
-Eine ungeproxiede Origin benennt einen Provider, dem sich eine Bestandsdatenauskunft
-zustellen lässt — was bei einer Cloudflare-fronted Domain nicht geht.
+Eine ungeproxiede Origin benennt den Provider unmittelbar, ohne dass jemand gefragt werden
+muss.
+
+**Richtiggestellt am 07.08.2026.** Hier stand ursprünglich „— was bei einer
+Cloudflare-fronted Domain nicht geht", und die Kampagnenauswertung sagte es noch schärfer:
+*eine Cloudflare-fronted Domain gibt einem Ermittler nichts*. Das ist falsch, und zwar auf
+eine Weise, die Ermittlungszeit kostet.
+
+Ein vorgeschalteter Proxy beseitigt den Ansatzpunkt nicht. Er **verlagert** ihn. Die
+Origin-IP hinter `ferncurrent14.com` ist nicht öffentlich sichtbar, aber Cloudflare kennt
+sie, samt dem Konto, das den Dienst eingerichtet hat. Cloudflare ist ein US-Unternehmen mit
+dokumentiertem Verfahren für Anfragen von Strafverfolgungsbehörden.
+
+Nach dem, was realistisch zu erlangen ist, ist der proxied Host hier der **bessere**
+Ansatzpunkt, nicht der schlechtere:
+
+| Host | Origin öffentlich sichtbar? | Wer antwortet | Realistischer Ertrag |
+|---|---|---|---|
+| `ferncurrent14.com` (Stufe 2, proxied) | nein | Cloudflare, US, dokumentiertes Verfahren | Origin-IP **und** Kontodaten — und die Origin führt zu einem weiteren Provider mit Bestandsdaten |
+| `enter-pverif-code.info`, `makeverizyjar.info` (Stufe 1, ungeproxied) | ja | Omegatech Ltd, AS sieben Monate zuvor registriert, türkischer LIR | Bestandsdaten, sofern überhaupt geantwortet wird |
+
+Die ungeproxieden Origins sind kostenlose Information. Die proxied ist Information, die
+jemand herausgeben muss — aber dieser Jemand ist erreichbar, und die Antwort ist mehr wert.
+„Hinter einem Proxy verborgen" mit „nicht erreichbar" gleichzusetzen verwechselt *für mich
+nicht sichtbar* mit *nicht zu beschaffen*, und das Zweite folgt nicht aus dem Ersten.
+
+Der Fehler wird festgehalten statt still repariert, weil er sich fortgepflanzt hat: Er
+wiederholte sich vier Wochen später in einem Entwurf für eine Geschädigtenmitteilung, in
+dem Cloudflare in der Liste der anzusprechenden Anbieter fehlte — nicht aus neuer
+Einschätzung, sondern weil diese Notiz die Frage bereits beantwortet zu haben schien. Ein
+falscher Schluss in einem Referenzdokument ist teurer als einer in einer Arbeitsnotiz.
 
 Wozu das ausdrücklich *nicht* taugt, steht in Abschnitt 5.
 

@@ -225,8 +225,37 @@ their origins exposed. Only the stage-2 host is actually proxied.
 That matters twice over. It lifts `makeverizyjar.info` above a coincidence of response
 length and registration age — it now shares hosting infrastructure with the confirmed
 gate, which is materially stronger, though an AS also hosts unrelated customers. And it
-leaves something an investigator can act on: an unproxied origin identifies a provider who
-can be served a subscriber-data request, which a Cloudflare-fronted domain does not.
+leaves something an investigator can act on: an unproxied origin names the provider
+directly, without anyone having to be asked.
+
+**Corrected 2026-08-07.** This section originally continued "…which a Cloudflare-fronted
+domain does not", and the campaign write-up put it more bluntly still: *a Cloudflare-fronted
+domain gives an investigator nothing*. That is wrong, and wrong in a way that costs
+investigative time.
+
+Proxying does not remove the lead. It **relocates** it. The origin IP behind
+`ferncurrent14.com` is not publicly visible, but Cloudflare holds it, along with the
+account that configured the service. Cloudflare is a US company with a documented
+law-enforcement request process.
+
+Ranked by what an investigator can realistically obtain, the proxied host is the *better*
+target here, not the worse one:
+
+| Host | Origin visible to the public? | Who answers a request | Realistic yield |
+|---|---|---|---|
+| `ferncurrent14.com` (stage 2, proxied) | No | Cloudflare, US, documented process | Origin IP **and** account data — and the origin points at a further provider holding subscriber data |
+| `enter-pverif-code.info`, `makeverizyjar.info` (stage 1, unproxied) | Yes | Omegatech Ltd, AS registered seven months earlier, Turkish LIR | Subscriber data, if they answer at all |
+
+The unproxied origins are free information. The proxied one is information somebody has to
+hand over — but the somebody is reachable, and the answer is worth more. Treating "hidden
+behind a proxy" as "unreachable" conflates *not visible to me* with *not obtainable*, and
+the second does not follow from the first.
+
+The error is worth recording rather than quietly patching, because it propagated: it was
+repeated in a draft advisory to an affected party four weeks later, where Cloudflare was
+omitted from the list of providers to approach — not from a fresh judgement, but because
+this note had already settled the question. A wrong conclusion in a reference document is
+more expensive than a wrong conclusion in a working note.
 
 On what this is *not*, see section 5.
 
