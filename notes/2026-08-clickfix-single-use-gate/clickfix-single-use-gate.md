@@ -379,7 +379,104 @@ Vollständige technische Darstellung, samt dem, was gegen das Sample nachgerechn
 
 ---
 
-## 9. Umgang mit dem Fall
+## 9. Zweite Richtigstellung (07.08.2026): auch die Verschlüsselung war eine Uhr
+
+Abschnitt 8 endete mit dem geborgenen Payload und einem Vorbehalt: Der Stealer selbst lag
+weiterhin als verschlüsselter Block vor, und die Analyse vermerkte, seine Bergung sei „von
+hier aus machbar, wurde aber nicht gebraucht".
+
+Auf diesem Vorbehalt wuchs dann eine These. Der Loader trägt ein Klartext-Label,
+`hwval-frag`, unmittelbar neben Code, der `IOPlatformSerialNumber` und `IOPlatformUUID`
+ausliest. Die naheliegende Lesart war Environmental Keying: Das Payload entschlüsselt sich
+nur auf der Maschine, für die es bestimmt war. Das wäre die eleganteste Eigenschaft des
+ganzen Samples gewesen. Sie erklärte das opferindividuelle Gate, sie erklärte den Aufwand
+bei der Analyse-Erkennung, und sie erklärte, warum siebzig Kandidatenschlüssel allesamt
+gescheitert waren.
+
+Sie war falsch. Der Schlüssel ist eine Übersetzungszeit-Konstante — die ersten vier Bytes
+des HKDF-Seeds, der im Klartext in derselben Datei steht, rückwärts gelesen und durch
+Arithmetik geführt, die verhindert, dass er je als Immediate auftaucht. Emuliert man die
+Instruktionen des Loaders selbst, fällt er in Sekunden heraus. `hwval-frag` benennt die
+Fragmenttabelle mit den *Namen* der Hardware-APIs. Es ging nie um den Schlüssel.
+
+### Die Form des Fehlers
+
+Der Fehler liegt nicht darin, dass eine These scheiterte. Er liegt darin, woraus sie
+gebaut war.
+
+Siebzig Schlüssel waren geprüft, keiner passte. Daraus ließen sich zwei Schlüsse ziehen:
+*Ich habe den Schlüssel nicht gefunden* und *der Schlüssel ist statisch nicht auffindbar*.
+Der erste ist eine Aussage über die Suche. Der zweite ist eine Aussage über das Sample und
+braucht eigene Belege, die nie erhoben wurden. Den Sprung leicht gemacht hat, dass der
+zweite Schluss der interessantere war. Er verwandelte eine Sackgasse in einen Befund.
+
+Das ist der Fehlermodus, der benannt gehört, denn von innen ist er nicht erkennbar. Eine
+negative Fähigkeitsbehauptung — das geht nicht — erzeugt keinen Widerspruch, solange man
+sie hält. Nichts wehrt sich. Die Suche endet, und das Enden fühlt sich an wie ein Ergebnis.
+
+Das Anzeichen war im Rückblick das Wort *elegant*. Es stand in den Arbeitsnotizen als Lob
+für den Entwurf des Samples, und Lob für den Entwurf eines Gegners ist eine nachvollziehbare
+Empfindung und eine schlechte Argumentationsgrundlage. Es leistete Beweisarbeit, für die es
+nicht bezahlt hatte.
+
+Der richtige Schritt war billig und wurde übersprungen: Der Schlüssel war 32 Bit lang, mit
+einem Poly1305-Tag als Prüforakel. Selbst ohne jede Vorstellung von seiner Herkunft war die
+vollständige Suche begrenzt und durchführbar. „Prinzipiell unmöglich" war nicht bloß
+unbelegt, es widersprach einer Zahl, die in der Analyse bereits notiert war.
+
+### Das Muster, zum dritten Mal
+
+Dieser Fall hat nun dreimal dieselbe Form hervorgebracht.
+
+| Haltepunkt | Was das Weitergehen zeigte |
+|---|---|
+| „Das Token ist verbraucht, das Payload ist weg" | Das Gate ist eine Uhr. Ein zweiter Besuch liefert ein frisches Token. |
+| „Das Payload ist verschlüsselt, dafür braucht es den Opferrechner" | Die Verschlüsselung ist eine Uhr. Der Schlüssel lag in der Datei. |
+| „Die API-Oberfläche des Loaders reicht für die Detektionsarbeit" | Das Payload installiert zwei Root-LaunchDaemons und ersetzt drei Wallet-Anwendungen. |
+
+Jedes Mal war der Haltepunkt vertretbar, als er gesetzt wurde. Jedes Mal erstarrte er zu
+einer Eigenschaft des Falls, statt zu bleiben, was er war: eine Beschreibung, wo die Arbeit
+pausierte. Und jedes Mal veränderte das Jenseitige etwas Wesentliches — beim dritten Mal die
+Empfehlung an eine Geschädigte, von *Zugangsdaten wechseln* zu *dieser Rechner gehört Ihnen
+nicht mehr*.
+
+Die ersten beiden kosteten Analysezeit. Das dritte hätte jemanden den Rechner gekostet.
+
+### Was es wert war
+
+- **Sechs ChaCha20-Poly1305-Chunks** unter einem PBKDF2-Schlüssel mit 98.222 Iterationen.
+  Alle sechs Tags verifizieren, das Ergebnis ist damit bewiesen und nicht begutachtet.
+- **Zwei Root-LaunchDaemons**, getarnt als `com.apple.accountsd.helper` und
+  `com.apple.metadata.mds.worker`, installiert mit dem Passwort aus dem Fake-Dialog.
+- **Ledger, Trezor und Exodus ersetzt** durch nachgeladene Builds. Nicht Diebstahl aus
+  einer Wallet — eine Wallet, die jetzt jemand anderem gehört.
+- **Ein neuer C2**, `grove53.com`, eine Domain neben dem Stufe-2-Beacon und mit demselben
+  Telemetriepfad.
+- **Die Blacklist der Analysewerkzeuge**, verschlüsselt in der Datei und erst zur Laufzeit
+  zusammengesetzt: 29 Werkzeuge, neun Umgebungsvariablen. Durch Emulation geborgen, für
+  jeden Dateiscan unsichtbar.
+
+### Angepasste Handlungsempfehlung, zweiter Durchgang
+
+5. **„Wir haben es nicht gefunden" und „es ist nicht auffindbar" sind verschiedene
+   Behauptungen.** Nur die erste ist umsonst zu haben. Die zweite braucht Belege, und sie
+   ist die attraktivere von beiden — genau deshalb muss sie geprüft werden.
+6. **Den Schlüsselraum abzählen, bevor man eine Wand ausruft.** Ein 32-Bit-Schlüssel mit
+   Prüforakel ist Fleißarbeit, keine Unmöglichkeit. Die Zahl stand zur Verfügung, bevor die
+   These es tat.
+7. **Emulieren statt ausführen.** Unicorn, das die Instruktionen interpretiert, beantwortet
+   die Frage „woher stammt dieser Wert" — was reine Brute Force nie geleistet hätte und was
+   die Sache tatsächlich entschieden hat. Eine VM hätte hier gar nichts beantwortet: Das
+   Sample prüft auf VMs.
+8. **Auf ästhetische Zufriedenheit in den eigenen Notizen achten.** Den Entwurf eines
+   Gegners elegant zu nennen ist in Ordnung. Das zum Grund zu machen, aufzuhören, nicht.
+
+Vollständige technische Darstellung und die Werkzeuge zur Reproduktion:
+[stage4_payload.md](https://github.com/raimurokko/macos-threat-tracking/blob/main/campaigns/2026-08-04-cloudflare-clickfix/stage4_payload.md).
+
+---
+
+## 10. Umgang mit dem Fall
 
 Die betroffene Schule wurde am selben Tag unterrichtet, unentgeltlich und ohne
 Auftragsinteresse, mit Maßnahmenvorschlägen und einem Textbaustein für die Elternschaft.

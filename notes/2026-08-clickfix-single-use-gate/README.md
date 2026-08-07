@@ -356,7 +356,98 @@ Full technical detail, including what was independently re-verified against the 
 
 ---
 
-## 9. Handling
+## 9. Second correction (2026-08-07): the encryption was a clock too
+
+Section 8 closed with the payload recovered and a caveat: the stealer itself was still an
+encrypted blob, and the analysis said recovering it was "tractable from here, but it was
+not needed."
+
+Then a hypothesis grew on top of that caveat. The loader carries a plaintext label,
+`hwval-frag`, next to code that reads `IOPlatformSerialNumber` and `IOPlatformUUID`. The
+obvious reading was environmental keying: the payload decrypts only on the machine it was
+sent to. That would have been the most elegant property in the sample. It explained the
+per-victim gate, it explained the elaborate analysis detection, and it explained why
+seventy candidate keys had all failed.
+
+It was wrong. The key is a compile-time constant — the first four bytes of the HKDF seed
+that sits in plaintext in the same binary, byte-reversed, pushed through arithmetic
+designed to keep it from ever appearing as an immediate. Emulating the loader's own
+instructions produces it in seconds. `hwval-frag` labels the fragment table holding the
+*names* of the hardware APIs. It was never about the key.
+
+### The shape of the error
+
+The mistake is not that a hypothesis failed. It is what the hypothesis was made of.
+
+Seventy keys had been tested and none worked. From that, two conclusions were available:
+*I have not found the key*, and *the key cannot be found statically*. The first is a
+statement about the search. The second is a statement about the sample, and it needs its
+own evidence, which was never gathered. What made the leap easy is that the second
+conclusion was more interesting. It turned a dead end into a finding.
+
+That is the failure mode worth naming, because it is not detectable from the inside. A
+negative capability claim — this cannot be done — produces no contradiction while you hold
+it. Nothing pushes back. The search stops, and the stopping feels like a result.
+
+The tell, in hindsight, was the word *elegant*. It appeared in the working notes as praise
+for the sample's design, and praise for an adversary's design is a reasonable thing to
+feel and a bad thing to reason from. It was doing argumentative work it had not earned.
+
+The correct move was cheap and was skipped: the key was 32 bits with a Poly1305 tag as a
+verification oracle. Even with no idea where the value came from, exhaustive search was
+bounded and feasible. "Impossible in principle" was not merely unproven, it was
+inconsistent with a number already written down in the analysis.
+
+### The pattern, on its third instance
+
+This case has now produced the same shape three times.
+
+| Stopping point | What going further showed |
+|---|---|
+| "The token burns, the payload is gone" | The gate is a clock. A fresh visit yields a fresh token. |
+| "The payload is encrypted, decryption needs the victim's host" | The encryption is a clock. The key was in the file. |
+| "The loader's API surface is enough for detection engineering" | The payload installs two root LaunchDaemons and replaces three wallet applications. |
+
+Each time the stopping point was defensible when it was made. Each time it hardened into a
+property of the case rather than a description of where the work had paused. And each time
+the thing on the other side changed something material — the third one changed the advice
+given to a victim from *rotate your credentials* to *this machine is not yours any more*.
+
+The first two cost analysis time. The third would have cost someone their machine.
+
+### What it was worth
+
+- **Six ChaCha20-Poly1305 chunks under a PBKDF2 key at 98,222 iterations.** All six tags
+  verify, so the result is proved rather than inspected.
+- **Two root LaunchDaemons** posing as `com.apple.accountsd.helper` and
+  `com.apple.metadata.mds.worker`, installed with the password from the fake dialog.
+- **Ledger, Trezor and Exodus replaced** with builds fetched from the operator. Not theft
+  from a wallet — a wallet that belongs to someone else now.
+- **A new C2**, `grove53.com`, one domain away from the stage-2 beacon and sharing its
+  telemetry path.
+- **The analyst-tool blacklist**, encrypted in the file and assembled only at runtime:
+  29 tools, nine environment variables. Recovered by emulation, invisible to any file scan.
+
+### Revised guidance, second pass
+
+5. **"We could not find it" and "it cannot be found" are different claims.** Only the first
+   one is free. The second needs evidence, and it is the more attractive of the two, which
+   is exactly why it needs checking.
+6. **Count the keyspace before declaring a wall.** A 32-bit key with a verification oracle
+   is a chore, not an impossibility. The number was available before the hypothesis was.
+7. **Emulate rather than execute.** Unicorn interpreting the instructions answers "where
+   did this value come from" — which brute force never would have, and which is what
+   actually settled the question. A VM would have answered nothing here: the sample checks
+   for VMs.
+8. **Watch for aesthetic satisfaction in your own notes.** Calling an adversary's design
+   elegant is fine. Letting that be a reason to stop is not.
+
+Full technical detail and the reproduction tooling:
+[stage4_payload.md](https://github.com/raimurokko/macos-threat-tracking/blob/main/campaigns/2026-08-04-cloudflare-clickfix/stage4_payload.md).
+
+---
+
+## 10. Handling
 
 The affected school was notified the same day, unpaid and without commercial interest, with
 remediation steps and a suggested notice for parents. **The site is deliberately not named
