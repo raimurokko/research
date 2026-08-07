@@ -4,6 +4,10 @@ Field notes from security research at [Novum Analytica GmbH](https://novumanalyt
 
 Notes are published in English where relevant to an international audience; German originals are included where they exist. Each note ships with its indicators (IOCs) in machine-readable form under `evidence/`.
 
+> **[Corrections](CORRECTIONS.md)** · [deutsch](CORRECTIONS.de.md) — a ledger of claims
+> published in these notes and later withdrawn, with what caught each one. None was caught
+> by rereading.
+
 ## Notes
 
 | Date | Title | Languages |
