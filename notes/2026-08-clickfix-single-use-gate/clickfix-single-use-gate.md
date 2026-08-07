@@ -456,6 +456,49 @@ Die ersten beiden kosteten Analysezeit. Das dritte hätte jemanden den Rechner g
   zusammengesetzt: 29 Werkzeuge, neun Umgebungsvariablen. Durch Emulation geborgen, für
   jeden Dateiscan unsichtbar.
 
+### Und dann noch einmal, vier Stunden später
+
+Die Liste oben entstand am selben Nachmittag, und sie enthält einen eigenen Fehler.
+
+Die zwei Root-LaunchDaemons und der Wallet-Austausch wurden als Befunde notiert, und der
+erste Entwurf der technischen Analyse ging weiter: Er behauptete, keines der beiden
+Verhalten sei in veröffentlichten AMOS-Beschreibungen enthalten, und schloss daraus, das
+spreche *gegen* eine AMOS-Zuordnung.
+
+Beide Hälften waren falsch. Die Prüfung bei SigmaHQ vor dem Einreichen der Regeln —
+dieselbe Prüfung, die schon die Behauptung in Abschnitt 8 zu Fall gebracht hatte — förderte
+zwei AMOS-Regeln vom November 2025 zutage. Deren Referenzen beschreiben Persistenz per
+LaunchDaemon mit abgephishtem Passwort und den Austausch von Ledger, Trezor und Exodus aus
+Archiven namens `app.zip`, `apptwo.zip` und `appex.zip` unter einem `/zxc/`-Pfad. Dieselben
+drei Archivnamen. Anderer Host, identische Dateinamen, neun Monate früher.
+
+Damit trägt diese Notiz zwei wiederkehrende Fehler, nicht einen.
+
+Der erste ist der Haltepunkt, der zur Behauptung erstarrt. Der zweite ist, **etwas neu zu
+nennen, ohne nachgesehen zu haben** — und der ist in diesem Fall nun zweimal passiert, am
+06.08. mit dem Header-Paar und am 07.08. mit dem Persistenzverhalten. Das zweite Mal weniger
+als vierundzwanzig Stunden nach der Niederschrift des ersten, in derselben Notiz, unter der
+Überschrift *die Neuheit hielt nicht*.
+
+Das gehört ausgehalten und nicht wegerklärt. Um eine Verzerrung zu wissen und gerade einen
+Absatz darüber geschrieben zu haben, hilft offenbar nicht. Geholfen hat beide Male ein
+mechanischer Schritt aus einem anderen Arbeitsgang: Wer eine SigmaHQ-Einreichung vorbereitet,
+muss auf Dubletten prüfen, und diese Prüfung hat die Korrektur erzeugt. Selbsterkenntnis hat
+in keinem der beiden Fälle etwas gefunden.
+
+Der praktische Schluss ist für eine auf Sorgfalt gebaute Arbeitsweise unangenehm: **Das
+Mittel ist nicht mehr Sorgfalt, sondern ein früherer Punkt auf der Checkliste.** Die Suche
+nach Vorarbeit gehört vor den ersten Entwurf, wo sie eine Stunde kostet, und nicht vor die
+Einreichung, wo sie eine Überarbeitung kostet — und wo sie, würde die Arbeit nirgends
+eingereicht, gar nichts kosten und den Fehler schlicht stehen lassen würde.
+
+Die Richtigstellung steht in
+[stage4_payload.md §6](https://github.com/raimurokko/macos-threat-tracking/blob/main/campaigns/2026-08-04-cloudflare-clickfix/stage4_payload.md).
+Sie hat die Familieneinstufung außerdem von *AMOS lineage, assessed* auf **AMOS, bestätigt**
+gehoben — der Teil, der am wenigsten schmerzt und am meisten zählt. Die Neuheit falsch
+einzuschätzen kostete einen Absatz. Die Familie richtig einzuschätzen ist das, was ein
+Empfänger der Indikatoren tatsächlich braucht.
+
 ### Angepasste Handlungsempfehlung, zweiter Durchgang
 
 5. **„Wir haben es nicht gefunden" und „es ist nicht auffindbar" sind verschiedene
@@ -470,6 +513,13 @@ Die ersten beiden kosteten Analysezeit. Das dritte hätte jemanden den Rechner g
    Sample prüft auf VMs.
 8. **Auf ästhetische Zufriedenheit in den eigenen Notizen achten.** Den Entwurf eines
    Gegners elegant zu nennen ist in Ordnung. Das zum Grund zu machen, aufzuhören, nicht.
+9. **Vorarbeit vor dem ersten Entwurf suchen, nicht vor der Einreichung.** Zweimal hat in
+   diesem Fall eine Neuheitsbehauptung den Weg in eine geschriebene Analyse gefunden und
+   wurde nur durch eine Dublettenprüfung aus anderem Anlass gefunden. Die Prüfung ist
+   billig und war das Einzige, was funktioniert hat.
+10. **Nicht erwarten, dass das Wissen um eine Verzerrung vor ihr schützt.** Der zweite
+    Neuheitsfehler entstand Stunden nach der Veröffentlichung eines Abschnitts über den
+    ersten. Gefunden hat ihn das Verfahren, nicht die Wachsamkeit.
 
 Vollständige technische Darstellung und die Werkzeuge zur Reproduktion:
 [stage4_payload.md](https://github.com/raimurokko/macos-threat-tracking/blob/main/campaigns/2026-08-04-cloudflare-clickfix/stage4_payload.md).

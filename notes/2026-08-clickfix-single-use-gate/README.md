@@ -428,6 +428,47 @@ The first two cost analysis time. The third would have cost someone their machin
 - **The analyst-tool blacklist**, encrypted in the file and assembled only at runtime:
   29 tools, nine environment variables. Recovered by emulation, invisible to any file scan.
 
+### And then it happened again, four hours later
+
+The list above was written the same afternoon, and it contains an error of its own.
+
+The two root LaunchDaemons and the wallet replacement were recorded as findings, and the
+first draft of the technical analysis went further: it argued that neither behaviour was
+part of published AMOS descriptions, and that this cut *against* an AMOS labelling.
+
+Both halves were wrong. Checking SigmaHQ before submitting rules — the same check that
+caught the header claim in section 8 — turned up two AMOS rules from November 2025. Their
+references describe LaunchDaemon persistence with a phished password, and the replacement
+of Ledger, Trezor and Exodus from archives named `app.zip`, `apptwo.zip` and `appex.zip`
+under a `/zxc/` path. The same three archive names. Different host, identical filenames,
+nine months earlier.
+
+So this note now carries two recurring failures, not one.
+
+The first is the stopping point that hardens into a claim. The second is **calling
+something new without having looked** — and that one has now happened twice in the same
+case, on 2026-08-06 with the header pair and on 2026-08-07 with the persistence behaviour.
+The second time was less than twenty-four hours after writing the first one up, in the
+same note, under the heading *the novelty did not hold*.
+
+That is worth sitting with rather than explaining away. Knowing about a bias, and having
+just written a paragraph about it, does not appear to help. What helped, both times, was a
+mechanical step in an unrelated workflow: preparing a SigmaHQ submission forces a duplicate
+search, and the duplicate search is what produced the correction. Neither time did
+introspection catch it.
+
+The practical conclusion is uncomfortable for a research habit built on care: **the fix is
+not more care, it is an earlier checklist item.** Prior-art search belongs before the first
+draft, where it costs an hour, rather than at submission, where it costs a rewrite — and
+where, if the work were not being submitted anywhere, it would cost nothing and simply
+leave the error standing.
+
+The correction is in
+[stage4_payload.md §6](https://github.com/raimurokko/macos-threat-tracking/blob/main/campaigns/2026-08-04-cloudflare-clickfix/stage4_payload.md).
+It also moved the family assessment from *AMOS lineage, assessed* to **AMOS, confirmed** —
+which is the part that stings least and matters most. Getting the novelty wrong cost a
+paragraph. Getting the family right is what a recipient of the indicators actually needs.
+
 ### Revised guidance, second pass
 
 5. **"We could not find it" and "it cannot be found" are different claims.** Only the first
@@ -441,6 +482,13 @@ The first two cost analysis time. The third would have cost someone their machin
    for VMs.
 8. **Watch for aesthetic satisfaction in your own notes.** Calling an adversary's design
    elegant is fine. Letting that be a reason to stop is not.
+9. **Search prior art before the first draft, not before submission.** Twice in this case
+   a novelty claim survived into a written analysis and was caught only by a duplicate
+   check done for an unrelated reason. The check is cheap and it is the only thing that
+   worked.
+10. **Do not expect awareness of a bias to protect you from it.** The second novelty error
+    was made hours after publishing a section about the first one. Process caught it;
+    vigilance did not.
 
 Full technical detail and the reproduction tooling:
 [stage4_payload.md](https://github.com/raimurokko/macos-threat-tracking/blob/main/campaigns/2026-08-04-cloudflare-clickfix/stage4_payload.md).
