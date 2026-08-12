@@ -254,6 +254,47 @@ Reviewing the captured evidence for publication turned up an error in this note'
 
 ---
 
+---
+
+## 11. Re-verification (2026-08-07)
+
+Re-checked two days after publication, prompted by an observation that "the content on
+welt.de is gone" and a question whether it had been malware after all.
+
+It is not gone, and it was not malware. The integration is still served, from the same
+origin, with the same construction:
+
+| | 2026-08-05 | 2026-08-07 |
+|---|---|---|
+| Script host | `html-load.com` | `html-load.com` — unchanged |
+| Path | `/vendor.js` | `/main.js` |
+| `data-sdk` | `wp-l/1.1.6` | **`wp-l/1.1.8`** |
+| Element `id` | `PjDNysNXd` | `sOwIET` — randomised per response, as before |
+| `nowprocket`, `data-cfasync="false"` | present | present |
+| Obfuscated inline decoder | index-array reconstruction | same construction, different constants |
+| `level` / `trigger` / `domain` / `ts` marker | present | **not found** |
+
+**Why it looked gone.** The scareware modal only fires when `html-load.com` fails to load.
+From this vantage point the domain now resolves normally (Cloudflare, `104.18.20.31` /
+`104.18.21.31`), so nothing breaks, so no overlay appears. The trigger changed, not the
+page. That is precisely the mechanism described in section 1, seen from the other side —
+and a reminder that "the symptom stopped" is not evidence about the cause.
+
+**Two SDK minor versions in two days.** This is the part worth keeping. Compromises do not
+ship incremented release numbers. A vendor maintaining a product does. The version bump,
+the path rename and the rotated decoder constants are all consistent with routine
+deployment by a commercial supplier and inconsistent with an injection someone left behind
+on a breached host — which strengthens the conclusion of section 5 by a route that was not
+available when it was written.
+
+**The marker is gone.** The `level` / `trigger` / `domain` / `ts` object no longer appears.
+Section 10 already withdrew the reading that it was rendered per request; its
+disappearance is consistent with that withdrawal, and it removes the artefact that
+produced the original wrong hypothesis in the first place.
+
+Nothing in sections 1–10 needs correcting as a result. The conclusion holds and is now
+supported by a second, independent observation two days apart.
+
 ## References
 
 1. urlscan.io — scans of www.welt.de, 2026-08-05: <https://urlscan.io/result/019fd3eb-fb80-73d9-8cc2-bd1d7fcaeaca/> (21:54 UTC) and <https://urlscan.io/result/019fd3f7-4965-7628-bd2a-a03aa120ccf8/> (22:07 UTC)

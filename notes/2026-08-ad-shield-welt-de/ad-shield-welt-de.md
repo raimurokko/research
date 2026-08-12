@@ -144,7 +144,7 @@ Die betriebswirtschaftliche Logik dahinter ist nachvollziehbar: Publisher verlie
 
 ---
 
-## 7. Indicators (IOCs)
+## 7. Indikatoren (IOCs)
 
 Die vollständige Liste mit dem Bestätigungsstand jedes Eintrags steht in
 [`evidence/iocs.txt`](evidence/iocs.txt).
@@ -255,6 +255,50 @@ Bei der Durchsicht des gesicherten Materials für die Veröffentlichung fiel ein
 **Was sich dadurch ändert.** An der Schlussfolgerung nichts. Die Injektion stammt von Ad-Shield, und das stützt sich auf die Domain-Reputation (Abschnitt 5) und die unabhängige Reproduktion über urlscan (Abschnitt 4) — nicht auf den Zeitstempel. Was sich ändert, ist die Redlichkeit der Kette: Ein Stützschritt war die Über-Interpretation eines Feldes, dessen Bedeutung nicht geklärt war. Also genau die Lehre aus Abschnitt 9, diesmal auf den Autor angewandt.
 
 ---
+
+---
+
+## 11. Nachprüfung (07.08.2026)
+
+Zwei Tage nach Veröffentlichung erneut geprüft, veranlasst durch die Beobachtung, „der
+Content bei welt.de ist verschwunden", und die Frage, ob es nun doch Schadsoftware gewesen
+sei.
+
+Er ist nicht verschwunden, und es war keine Schadsoftware. Die Einbindung wird weiterhin
+ausgeliefert, von derselben Quelle, in derselben Bauart:
+
+| | 05.08.2026 | 07.08.2026 |
+|---|---|---|
+| Script-Host | `html-load.com` | `html-load.com` — unverändert |
+| Pfad | `/vendor.js` | `/main.js` |
+| `data-sdk` | `wp-l/1.1.6` | **`wp-l/1.1.8`** |
+| Element-`id` | `PjDNysNXd` | `sOwIET` — je Antwort zufällig, wie zuvor |
+| `nowprocket`, `data-cfasync="false"` | vorhanden | vorhanden |
+| Obfuskierter Inline-Decoder | Rekonstruktion aus Index-Array | gleiche Bauart, andere Konstanten |
+| Marker `level` / `trigger` / `domain` / `ts` | vorhanden | **nicht gefunden** |
+
+**Warum es verschwunden wirkte.** Das Scareware-Modal erscheint nur, wenn `html-load.com`
+nicht geladen werden kann. Von hier aus löst die Domain inzwischen normal auf (Cloudflare,
+`104.18.20.31` / `104.18.21.31`), also bricht nichts, also erscheint kein Overlay. Geändert
+hat sich der Auslöser, nicht die Seite. Das ist genau der in Abschnitt 1 beschriebene
+Mechanismus, von der anderen Seite gesehen — und eine Erinnerung daran, dass „das Symptom
+ist weg" keine Aussage über die Ursache ist.
+
+**Zwei SDK-Minor-Versionen in zwei Tagen.** Das ist der Teil, den man behalten sollte.
+Kompromittierungen liefern keine hochgezählten Versionsnummern aus. Ein Anbieter, der ein
+Produkt pflegt, tut das. Versionssprung, Pfadumbenennung und rotierte Decoder-Konstanten
+passen sämtlich zu regulären Auslieferungen eines kommerziellen Anbieters und nicht zu
+einer Injektion, die jemand auf einem übernommenen Host zurückgelassen hat — was den
+Schluss aus Abschnitt 5 auf einem Weg stützt, der bei dessen Niederschrift nicht zur
+Verfügung stand.
+
+**Der Marker ist fort.** Das Objekt `level` / `trigger` / `domain` / `ts` taucht nicht mehr
+auf. Abschnitt 10 hat die Lesart, es werde pro Request gerendert, bereits zurückgenommen;
+sein Verschwinden passt dazu und beseitigt zugleich das Artefakt, das die ursprüngliche
+Fehlhypothese überhaupt erst erzeugt hat.
+
+An den Abschnitten 1 bis 10 ist deshalb nichts zu korrigieren. Der Schluss hält und ist
+jetzt durch eine zweite, zwei Tage später erhobene Beobachtung gestützt.
 
 ## Referenzen
 
